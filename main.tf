@@ -4,7 +4,7 @@ variable "k8s_dashboard_ver" {
   default     = "1.10.1"
 }
 
-variable "minimal_role_name" {
+variable minimal_role_name {
   description = "Name of limited permissions role"
   type        = "string"
   default     = "kubernetes-dashboard-minimal"
@@ -40,6 +40,12 @@ variable "replicas" {
   default     = "1"
 }
 
+variable "depends_on" {
+  default     = []
+  description = "Workaround for module dependency"
+  type        = "list"
+}
+
 resource "kubernetes_secret" "dashboard" {
   metadata {
     name      = "kubernetes-dashboard-certs"
@@ -55,7 +61,7 @@ resource "kubernetes_secret" "dashboard" {
 
 resource "kubernetes_role" "dashboard-minimal" {
   metadata {
-    name      = "${var."minimal_role_name"}"
+    name      = "${var.minimal_role_name}"
     namespace = "${var.namespace}"
   }
 
@@ -136,14 +142,14 @@ resource "kubernetes_service_account" "dashboard" {
 
 resource "kubernetes_role_binding" "dashboard" {
   metadata {
-    name      = "${var."minimal_role_name"}"
+    name      = "${var.minimal_role_name}"
     namespace = "${var.namespace}"
   }
 
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "Role"
-    name      = "${var."minimal_role_name"}"
+    name      = "${var.minimal_role_name}"
   }
 
   subject {
